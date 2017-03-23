@@ -25,6 +25,7 @@
             :state="currentWord.state"
             :detail="currentWord.detail"
             @choose="onChoose"
+            @next="onNext"
           >
           </word-card>
         </div>
@@ -47,7 +48,8 @@
       <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
     </div>
     <div v-else class="wordcard-detail">
-      <span>{{detail}}</span>
+      <p>{{detail}}</p>
+      <el-button type="primary" @click="clickNext">下一个</el-button>
     </div>
   </div>
 </script>
@@ -61,13 +63,14 @@ Vue.component('sb-wordcard', {
   },
   data: function() {
     return {
-
     }
   },
   methods: {
     clickKnow: function(know) {
-      console.log(know);
       this.$emit("choose", know);
+    },
+    clickNext: function() {
+      this.$emit("next");
     }
   }
 });
@@ -78,14 +81,41 @@ new Vue({
       word: 'hello',
       detail: 'Hello',
       state: 'query'
-    }
+    },
+    currentIndex: 0,
+    currentGroup: []
   },
   mounted:function() {
+    this.loadWords();
   },
   methods: {
     onChoose: function(know) {
       console.log('onChoose', know);
+      this.currentGroup[this.currentIndex].know = know;
       this.currentWord.state = 'detail';
+    },
+    onNext: function() {
+      this.currentIndex += 1;
+      if (this.currentIndex == this.currentGroup.length) {
+        this.loadWords();
+        return;
+      }
+      var index = this.currentIndex;
+      this.currentWord = {
+        word: this.currentGroup[index].word,
+        detail: this.currentGroup[index].text,
+        state: 'query'
+      };
+    },
+    loadWords: function() {
+      this.$http.get('/api/words').then(function(response){
+        this.currentGroup = response.body.words;
+        this.currentIndex = -1;
+        this.onNext();
+      }).catch(function(response){
+        this.$message.error('Unable to load words!\n');
+        console.error(response.body);
+      })
     }
   }
 });

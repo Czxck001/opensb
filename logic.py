@@ -15,6 +15,13 @@ class Config:
 
 
 class CoreLogic:
+
+    def __init__(self, wordlist, config=None):
+        self._wordlist = wordlist
+        if config is None:
+            config = Config()
+        self.config = config
+
     @property
     def wordlist(self):
         ''' wordlist: {word: text}
@@ -82,15 +89,15 @@ class CoreLogic:
         # if there is too many bad words, focus on the bad words
         elif pc['bad'] > self.config.max_bad or \
                 pc['wanting'] == pc['unknown'] == 0:
-            words = (word for word, status in self.progress
+            words = (word for word, status in self.progress.items()
                      if status == MemoryStatus.BAD)
         else:
-            words = (word for word, status in self.progress
+            words = (word for word, status in self.progress.items()
                      if status in {MemoryStatus.UNKNOWN, MemoryStatus.WANTING})
 
         group = []
         for k, word in enumerate(words):
             if k == self.config.group_size:
                 break
-            group.append((word, self.wordlist[word]))
+            group.append({'word': word, 'text': self.wordlist[word]})
         return group

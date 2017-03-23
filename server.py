@@ -10,6 +10,8 @@ import tornado.autoreload
 
 from tornado.platform.asyncio import AsyncIOMainLoop
 
+from wordapi import WordHandler
+from logic import CoreLogic
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,6 +20,13 @@ __static_path = os.path.join(__frontend_path, 'static')
 
 
 def get_app():
+    wordlist = {
+        'aaa': 'AAAA',
+        'bbb': 'BBBB',
+        'ccc': 'CCCC',
+    }
+    logic = CoreLogic(wordlist=wordlist)
+
     app_kwargs = {}
     # debug
     app_kwargs['debug'] = True
@@ -27,6 +36,7 @@ def get_app():
             'default_filename': 'index.html'
         }),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': __static_path}),
+        (r'/api/words', WordHandler, {'logic': logic})
     ], **app_kwargs)
     return application
 
