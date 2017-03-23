@@ -26,6 +26,7 @@ def get_app():
             'path': __frontend_path,
             'default_filename': 'index.html'
         }),
+        (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': __static_path}),
     ], **app_kwargs)
     return application
 

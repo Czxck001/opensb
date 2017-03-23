@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OpenSB</title>
     <link rel="stylesheet" href="//cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css">
+    <link rel="stylesheet" href="/static/opensb.css">
   </head>
   <style>
     [v-cloak] {
@@ -14,20 +15,79 @@
   </style>
 <body>
   <div id="app" v-cloak>
-    <h1>OpenSB</h1>
+    <div class="opensb-header">OpenSB</div>
+    <el-row>
+      <el-col :span="2"><div class="side-padding"></div></el-col>
+      <el-col :span="20">
+        <div class="main-container">
+          <sb-wordcard
+            :word="currentWord.word"
+            :state="currentWord.state"
+            :detail="currentWord.detail"
+            @choose="onChoose"
+          >
+          </word-card>
+        </div>
+      </el-col>
+      <el-col :span="2"><div class="side-padding"></div></el-col>
+    </el-row>
   </div>
 </body>
 <script src="//cdn.bootcss.com/vue/2.2.4/vue.js"></script>
 <script src="//cdn.bootcss.com/vue-resource/1.2.1/vue-resource.min.js"></script>
+<script src="//cdn.bootcss.com/vue-router/2.3.0/vue-router.min.js"></script>
+<script src="//cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+<script type="text/x-template" id="sb-wordcard-template">
+  <div class="sb-wordcard">
+    <div class="word-title">{{word}}</div>
+    <div v-if="state == 'query'" class="wordcard-query">
+      <!-- <el-button :plain="true" type="success" class="wordcard-query-line" @click="clickKnow(true)">1.认识</el-button>
+      <el-button :plain="true" type="danger" class="wordcard-query-line" @click="clickKnow(false)">2.不认识</el-button> -->
+      <a href="javascript:void(0)" @click="clickKnow(true)"><div class="wordcard-query-line query-know">1.认识</div></a>
+      <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
+    </div>
+    <div v-else class="wordcard-detail">
+      <span>{{detail}}</span>
+    </div>
+  </div>
+</script>
 <script>
+Vue.component('sb-wordcard', {
+  template: '#sb-wordcard-template',
+  props: {
+    word: String,
+    detail: String,
+    state: String
+  },
+  data: function() {
+    return {
+
+    }
+  },
+  methods: {
+    clickKnow: function(know) {
+      console.log(know);
+      this.$emit("choose", know);
+    }
+  }
+});
 new Vue({
   el: '#app',
   data: {
+    currentWord: {
+      word: 'hello',
+      detail: 'Hello',
+      state: 'query'
+    }
   },
   mounted:function() {
   },
   methods: {
+    onChoose: function(know) {
+      console.log('onChoose', know);
+      this.currentWord.state = 'detail';
+    }
   }
-})
+});
 </script>
 </html>
