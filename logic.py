@@ -1,4 +1,4 @@
-''' Core logits
+''' Core logics
 '''
 
 
@@ -14,7 +14,7 @@ class Config:
     group_size = 7
 
 
-class CoreLogit:
+class CoreLogic:
     @property
     def wordlist(self):
         ''' wordlist: {word: text}
