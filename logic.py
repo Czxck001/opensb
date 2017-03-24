@@ -1,5 +1,7 @@
+# encoding: utf-8
 ''' Core logics
 '''
+from collections import OrderedDict
 
 
 class MemoryStatus:
@@ -16,8 +18,21 @@ class Config:
 
 class CoreLogic:
 
+    know_trans = {
+        MemoryStatus.UNKNOWN: MemoryStatus.GOOD,
+        MemoryStatus.BAD: MemoryStatus.WANTING,
+        MemoryStatus.WANTING: MemoryStatus.GOOD,
+    }
+
     def __init__(self, wordlist, config=None):
         self._wordlist = wordlist
+        self._progress = OrderedDict(
+            (word, MemoryStatus.UNKNOWN) for word in self.wordlist
+        )
+        self._updated = set()  # has been marked as GOOD today
+
+        self._memory = dict((word, 0) for word in self.wordlist)
+
         if config is None:
             config = Config()
         self.config = config
@@ -31,25 +46,18 @@ class CoreLogic:
     @property
     def memory(self):
         ''' memory: {word: proficiency}
+        proficiency = times of reach GOOD
         '''
-        if not hasattr(self, '_memory'):
-            self._memory = dict((word, 0) for word in self.wordlist)
         return self._memory
 
     @property
     def progress(self):
         ''' progress: {word: status}
+        status = {MemoryStatus}
         '''
-        from collections import OrderedDict
-        if not hasattr(self, '_progress'):
-            self._progress = OrderedDict(
-                (word, MemoryStatus.UNKNOWN) for word in self.wordlist
-            )
         return self._progress
 
     def update_memory(self):
-        if not hasattr(self, '_updated'):
-            self._updated = set()
         for word, status in self.progress.items():
             if status == MemoryStatus.GOOD and word not in self._updated:
                 self.memory[word] += 1
@@ -57,12 +65,7 @@ class CoreLogic:
 
     def i_know(self, word):
         assert self.progress[word] != MemoryStatus.GOOD
-        if self.progress[word] == MemoryStatus.UNKNOWN:
-            self.progress[word] = MemoryStatus.GOOD
-        elif self.progress[word] == MemoryStatus.BAD:
-            self.progress[word] = MemoryStatus.WANTING
-        elif self.progress[word] == MemoryStatus.WANTING:
-            self.progress[word] = MemoryStatus.GOOD
+        self.progress[word] = self.know_trans[self.progress[word]]
 
     def i_dont_know(self, word):
         self.progress[word] = MemoryStatus.BAD
@@ -82,9 +85,9 @@ class CoreLogic:
     def next_group(self):
         ''' return: [(word, test), (word, test), ... ]
         '''
-        pc = self.count_progress()
+        pc = self.count_progress()  # progress counter
         if pc['bad'] == pc['wanting'] == pc['unknown'] == 0:
-            return []
+            return [], pc
 
         # if there is too many bad words, focus on the bad words
         elif pc['bad'] > self.config.max_bad or \
@@ -100,4 +103,4 @@ class CoreLogic:
             if k == self.config.group_size:
                 break
             group.append({'word': word, 'text': self.wordlist[word]})
-        return group
+        return group, pc

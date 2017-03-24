@@ -20,7 +20,8 @@
       <el-col :span="2"><div class="side-padding"></div></el-col>
       <el-col :span="20">
         <div class="main-container">
-          <sb-wordcard
+          <h1 v-if="finish">Finish </h1>
+          <sb-wordcard v-else
             :word="currentWord.word"
             :state="currentWord.state"
             :detail="currentWord.detail"
@@ -78,15 +79,16 @@ new Vue({
   el: '#app',
   data: {
     currentWord: {
-      word: 'hello',
-      detail: 'Hello',
+      word: 'OpenSB',
+      detail: 'OpenSB',
       state: 'query'
     },
     currentIndex: 0,
-    currentGroup: []
+    currentGroup: [],
+    finish: false
   },
   mounted:function() {
-    this.loadWords();
+    this.loadFirstGroup();
   },
   methods: {
     onChoose: function(know) {
@@ -97,7 +99,7 @@ new Vue({
     onNext: function() {
       this.currentIndex += 1;
       if (this.currentIndex == this.currentGroup.length) {
-        this.loadWords();
+        this.loadNextGroup();
         return;
       }
       var index = this.currentIndex;
@@ -107,12 +109,31 @@ new Vue({
         state: 'query'
       };
     },
-    loadWords: function() {
-      this.$http.get('/api/words').then(function(response){
-        this.currentGroup = response.body.words;
-        this.currentIndex = -1;
+    loadWords: function(response) {
+      this.currentGroup = response.body.words;
+      this.currentIndex = -1;
+      if (this.currentGroup.length > 0) {
         this.onNext();
-      }).catch(function(response){
+      } else {
+        this.finish = true;
+      }
+    },
+    loadNextGroup: function() {
+      var knowStatus = {};
+      for (var i = 0; i < this.currentGroup.length; i++) {
+        var word = this.currentGroup[i];
+        if (word.know !== undefined) {
+          knowStatus[word.word] = word.know;
+        }
+      }
+      this.$http.post('/api/words', {knowStatus: knowStatus}).then(this.loadWords).catch(function(response){
+        this.$message.error('Unable to load words!\n');
+        console.error(response.body);
+      })
+    },
+    loadFirstGroup: function() {
+      var $this = this;
+      this.$http.get('/api/words').then(this.loadWords).catch(function(response){
         this.$message.error('Unable to load words!\n');
         console.error(response.body);
       })
