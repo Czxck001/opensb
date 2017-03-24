@@ -91,3 +91,16 @@ a {
   display: block;
   margin: 0 auto;
 }
+.sb-progress-bar {
+  height: 16px;
+  display: block;
+  background-color: #E5E9F2;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+.sb-progress-bar .progress-bar-component {
+  height: 16px;
+  float: left;
+}

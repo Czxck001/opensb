@@ -41,7 +41,8 @@
             @cancel="onCancel"
             @next="onNext"
           >
-          </word-card>
+          </sb-wordcard>
+          <sb-progress-bar :components="progressComponents"></sb-progress-bar>
         </div>
       </el-col>
       <el-col :span="2"><div class="side-padding"></div></el-col>
@@ -70,7 +71,41 @@
     </div>
   </div>
 </script>
+<script type="text/x-template" id="sb-progress-bar-template">
+  <div class="sb-progress-bar">
+    <div>
+      <div
+        v-for="component in components"
+        class="progress-bar-component"
+        v-bind:style="{backgroundColor: component.color, width: width(component) * 100 + '%'}"
+        >
+      </div>
+    </div>
+  </div>
+</script>
 <script>
+Vue.component('sb-progress-bar', {
+  template: '#sb-progress-bar-template',
+  props: {
+    components: Array
+  },
+  data: function() {
+    return {}
+  },
+  methods: {
+    width: function(component) {
+      var sum = 0;
+      for (var i = 0; i < this.components.length; i++) {
+        sum += this.components[i].value;
+      }
+      console.log('sum=', sum);
+      if (sum !== 0)
+        return component.value / sum;
+      return 0;
+    }
+  }
+
+});
 Vue.component('sb-wordcard', {
   template: '#sb-wordcard-template',
   props: {
@@ -105,7 +140,13 @@ new Vue({
     },
     currentIndex: 0,
     currentGroup: [],
-    state: 'welcome'
+    state: 'welcome',
+    progress: {
+      bad: 0,
+      wanting: 0,
+      good:0,
+      unknown: 0,
+    }
   },
   mounted:function() {
     this.loadFirstGroup();
@@ -138,6 +179,7 @@ new Vue({
     },
     loadWords: function(response) {
       this.currentGroup = response.body.words;
+      this.progress = response.body.progress;
       this.currentIndex = -1;
       if (this.currentGroup.length > 0) {
         this.state = 'query';
@@ -165,6 +207,26 @@ new Vue({
         this.$message.error('Unable to load words!\n');
         console.error(response.body);
       })
+    }
+  },
+  computed: {
+    progressComponents: function() {
+      var keys = ['bad', 'wanting', 'good', 'unknown'];
+      var colorMap = {
+        bad: '#FF4949',
+        wanting: '#F7BA2A',
+        good: '#13CE66',
+        unknown: '#D3DCE6',
+      };
+      var components = []
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        components.push({
+          color: colorMap[key],
+          value: this.progress[key]
+        })
+      }
+      return components;
     }
   }
 });
