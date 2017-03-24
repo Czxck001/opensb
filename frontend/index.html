@@ -20,12 +20,25 @@
       <el-col :span="2"><div class="side-padding"></div></el-col>
       <el-col :span="20">
         <div class="main-container">
-          <h1 v-if="finish">Finish </h1>
-          <sb-wordcard v-else
+          <div v-if="state == 'welcome'">
+            <el-button @click="state='query'" type="primary" class="start-button" size="large">Start</el-button>
+          </div>
+          <h1 v-else-if="state == 'finish'">Finish </h1>
+          <div v-if="state == 'review'">
+            <p class="word-review-line"v-for="word in currentGroup">
+              <i v-if="word.know"class="el-icon-check"></i>
+              <i v-else class="el-icon-close"></i>
+              <span>{{word.word}}</span>
+            </p>
+            <el-button @click="onNextGroup" type="primary" class="next-group-button" size="large">下一组</el-button>
+          </div>
+          <sb-wordcard v-else-if="state == 'query'"
             :word="currentWord.word"
             :state="currentWord.state"
             :detail="currentWord.detail"
+            :know="currentWord.know"
             @choose="onChoose"
+            @cancel="onCancel"
             @next="onNext"
           >
           </word-card>
@@ -50,7 +63,10 @@
     </div>
     <div v-else class="wordcard-detail">
       <p>{{detail}}</p>
-      <el-button type="primary" @click="clickNext">下一个</el-button>
+      <div class="wordcard-next-buttons">
+        <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
+        <el-button type="danger" v-if="know" @click="clickCancel" size="large">撤销</el-button>
+      </div>
     </div>
   </div>
 </script>
@@ -60,7 +76,8 @@ Vue.component('sb-wordcard', {
   props: {
     word: String,
     detail: String,
-    state: String
+    state: String,
+    know: Boolean
   },
   data: function() {
     return {
@@ -72,6 +89,9 @@ Vue.component('sb-wordcard', {
     },
     clickNext: function() {
       this.$emit("next");
+    },
+    clickCancel: function() {
+      this.$emit("cancel");
     }
   }
 });
@@ -85,21 +105,25 @@ new Vue({
     },
     currentIndex: 0,
     currentGroup: [],
-    finish: false
+    state: 'welcome'
   },
   mounted:function() {
     this.loadFirstGroup();
   },
   methods: {
     onChoose: function(know) {
-      console.log('onChoose', know);
       this.currentGroup[this.currentIndex].know = know;
       this.currentWord.state = 'detail';
+      this.currentWord.know = know;
+    },
+    onCancel: function() {
+      this.currentGroup[this.currentIndex].know = false;
+      this.onNext();
     },
     onNext: function() {
       this.currentIndex += 1;
       if (this.currentIndex == this.currentGroup.length) {
-        this.loadNextGroup();
+        this.state = 'review'
         return;
       }
       var index = this.currentIndex;
@@ -109,13 +133,17 @@ new Vue({
         state: 'query'
       };
     },
+    onNextGroup: function() {
+      this.loadNextGroup();
+    },
     loadWords: function(response) {
       this.currentGroup = response.body.words;
       this.currentIndex = -1;
       if (this.currentGroup.length > 0) {
+        this.state = 'query';
         this.onNext();
       } else {
-        this.finish = true;
+        this.state = 'finish';
       }
     },
     loadNextGroup: function() {

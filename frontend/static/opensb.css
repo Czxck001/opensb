@@ -25,6 +25,10 @@ a {
   border-bottom-right-radius: 10px;
   padding: 20px;
 }
+.main-container .start-button {
+  margin: 0 auto;
+  display: block;
+}
 .sb-wordcard .word-title  {
   font-size: 36px;
   text-align: center;
@@ -53,9 +57,37 @@ a {
   background-color: #FF4949;
   color: white;
 }
+.wordcard-next-buttons {
+  margin: 0 auto;
+  max-width: 180px;
+}
 .wordcard-detail {
   max-width: 800px;
   margin: 0 auto;
   margin-top: 20px;
   font-size: 20px;
+}
+.word-review-line {
+  border-radius: 4px;
+  margin: 0 0 12px 0;
+  padding: 8px;
+  font-size: 20px;
+  border: 1px #E5E9F2 solid;
+}
+.word-review-line .el-icon-check {
+  color: #13CE66;
+  font-size: 1rem;
+  width: 22px;
+}
+.word-review-line .el-icon-close {
+  color: #FF4949;
+  font-size: 1rem;
+  width: 22px;
+}
+.word-review-line span {
+  margin-left: 1rem;
+}
+.next-group-button {
+  display: block;
+  margin: 0 auto;
 }

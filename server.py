@@ -44,7 +44,7 @@ def get_app():
 def start_server():
     AsyncIOMainLoop().install()
     app = get_app()
-    app.listen(8081)
+    app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()
     print('Reload.')
     loop.run_forever()
