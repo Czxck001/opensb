@@ -53,6 +53,7 @@
 <script src="//cdn.bootcss.com/vue-resource/1.2.1/vue-resource.min.js"></script>
 <script src="//cdn.bootcss.com/vue-router/2.3.0/vue-router.min.js"></script>
 <script src="//cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
 <script type="text/x-template" id="sb-wordcard-template">
   <div class="sb-wordcard">
     <div class="word-title">{{word}}</div>
@@ -63,7 +64,7 @@
       <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
     </div>
     <div v-else class="wordcard-detail">
-      <p>{{detail}}</p>
+      <div v-html="compiledMarkdownDetail"></div>
       <div class="wordcard-next-buttons">
         <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
         <el-button type="danger" v-if="know" @click="clickCancel" size="large">撤销</el-button>
@@ -127,6 +128,11 @@ Vue.component('sb-wordcard', {
     },
     clickCancel: function() {
       this.$emit("cancel");
+    }
+  },
+  computed: {
+    compiledMarkdownDetail: function() {
+      return marked(this.detail, { sanitize: true })
     }
   }
 });

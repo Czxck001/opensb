@@ -3,6 +3,9 @@ import asyncio
 import os
 import sys
 import logging
+import json
+import sqlite3
+import argparse
 
 import tornado
 import tornado.web
@@ -19,13 +22,52 @@ __frontend_path = os.path.join(BASE_DIR, 'frontend')
 __static_path = os.path.join(__frontend_path, 'static')
 
 
-def get_app():
-    wordlist = {
-        'aaa': 'AAAA',
-        'bbb': 'BBBB',
-        'ccc': 'CCCC',
-    }
+def prepare_db(db):
+    cu = db.cursor()
+    cu.execute("""
+        CREATE TABLE IF NOT EXISTS `word` (
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `word` TEXT NOT NULL UNIQUE,
+            `detail` TEXT
+        )
+    """)
+    cu.execute("""
+        CREATE TABLE IF NOT EXISTS `proficiency` (
+            `word` TEXT,
+            `proficiency` INTEGER NOT NULL,
+            PRIMARY KEY(`word`)
+        )
+    """)
+    db.commit()
+    cu.close()
+
+
+def get_words(db):
+    cu = db.cursor()
+    ret = {word: text for word, text in cu.execute("SELECT word, detail FROM `word` ORDER BY `id`")}
+    cu.close()
+    return ret
+
+
+def get_proficiency(db):
+    cu = db.cursor()
+    ret = {word: proficiency for word, proficiency in cu.execute("SELECT word, proficiency FROM `proficiency`")}
+    cu.close()
+    return ret
+
+
+def get_argparser():
+    parser = argparse.ArgumentParser(description='OpenSB')
+    parser.add_argument('-i', '--import-dict', help='import dictionary')
+
+    return parser
+
+
+def get_app(db):
+    wordlist = get_words(db)
+
     logic = CoreLogic(wordlist=wordlist)
+    logic.memory.update(get_proficiency(db))
 
     app_kwargs = {}
     # debug
@@ -36,14 +78,14 @@ def get_app():
             'default_filename': 'index.html'
         }),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': __static_path}),
-        (r'/api/words', WordHandler, {'logic': logic})
+        (r'/api/words', WordHandler, {'logic': logic, 'db': db})
     ], **app_kwargs)
     return application
 
 
-def start_server():
+def start_server(db):
     AsyncIOMainLoop().install()
-    app = get_app()
+    app = get_app(db)
     app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()
     print('Reload.')
@@ -51,9 +93,22 @@ def start_server():
 
 
 def main():
+    parser = get_argparser()
+    args = parser.parse_args()
+
     logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
-    start_server()
+    db = sqlite3.connect('opensb.db')
+    prepare_db(db)
+
+    if args.import_dict:
+        dictionary = json.load(open(args.import_dict, 'r'))
+        cu = db.cursor()
+        cu.executemany("REPLACE INTO word(word, detail) VALUES (?, ?)", dictionary)
+        db.commit()
+        cu.close()
+
+    start_server(db)
 
 
 if __name__ == '__main__':
