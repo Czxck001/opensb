@@ -14,6 +14,8 @@ class MemoryStatus:
 class Config:
     max_bad = 14
     group_size = 7
+    day_cap = 100
+    max_mem = 3
 
 
 class CoreLogic:
@@ -26,17 +28,20 @@ class CoreLogic:
 
     def __init__(self, wordlist, memory=None, config=None):
         self._wordlist = wordlist
-        self._progress = OrderedDict(
-            (word, MemoryStatus.UNKNOWN) for word in self.wordlist
-        )
         self._updated = set()  # has been marked as GOOD today
 
-        self._memory = dict((word, 0) for word in self.wordlist)
+        self._memory = {word: 0 for word in self.wordlist}
         self._memory.update(memory)
 
         if config is None:
             config = Config()
         self.config = config
+
+        # make daily task
+        self._progress = OrderedDict(
+            (word, MemoryStatus.UNKNOWN)
+            for word, _ in sorted(self.memory.items(), key=lambda x: x[1])
+        )
 
     @property
     def wordlist(self):
@@ -47,7 +52,7 @@ class CoreLogic:
     @property
     def memory(self):
         ''' memory: {word: proficiency}
-        proficiency = times of reach GOOD
+        proficiency = times of reaching GOOD
         '''
         return self._memory
 
