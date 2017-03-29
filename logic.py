@@ -37,10 +37,15 @@ class CoreLogic:
             config = Config()
         self.config = config
 
+        from random import shuffle
+        new_words = [word for word, prof in self.memory.items()
+                     if prof >= self.config.max_mem][:self.config.day_cap]
+        shuffle(new_words)
+
         # make daily task
         self._progress = OrderedDict(
             (word, MemoryStatus.UNKNOWN)
-            for word, _ in sorted(self.memory.items(), key=lambda x: x[1])
+            for word in new_words
         )
 
     @property
