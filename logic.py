@@ -39,13 +39,13 @@ class CoreLogic:
 
         from random import shuffle
         new_words = [word for word, prof in self.memory.items()
-                     if prof >= self.config.max_mem][:self.config.day_cap]
+                     if prof < self.config.max_mem]
         shuffle(new_words)
 
         # make daily task
         self._progress = OrderedDict(
             (word, MemoryStatus.UNKNOWN)
-            for word in new_words
+            for word in new_words[:self.config.day_cap]
         )
 
     @property
