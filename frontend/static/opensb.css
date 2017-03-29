@@ -15,6 +15,9 @@ a {
   padding: 10px 24px 10px 24px;
   font-family: sans-serif;
 }
+.opensb-header a {
+  color: black;
+}
 .side-padding {
   min-height: 24px;
 }
