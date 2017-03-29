@@ -65,9 +65,8 @@ def get_argparser():
 
 def get_app(db):
     wordlist = get_words(db)
-
-    logic = CoreLogic(wordlist=wordlist)
-    logic.memory.update(get_proficiency(db))
+    memory = get_proficiency(db)
+    logic = CoreLogic(wordlist=wordlist, memory=memory)
 
     app_kwargs = {}
     # debug

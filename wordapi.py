@@ -34,7 +34,6 @@ class WordHandler(tornado.web.RequestHandler):
         )
         self.db.commit()
         cu.close()
-        print([(word, proficiency) for word, proficiency in self.logic.memory.items()])
 
         words, progress = self.logic.next_group()
         self.write({
