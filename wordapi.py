@@ -34,10 +34,23 @@ class WordHandler(tornado.web.RequestHandler):
         )
         self.db.commit()
         cu.close()
-        print([(word, proficiency) for word, proficiency in self.logic.memory.items()])
 
         words, progress = self.logic.next_group()
         self.write({
             'words': words,
             'progress': progress
         })
+
+
+class CountingHandler(tornado.web.RequestHandler):
+
+    def initialize(self, db):
+        self.db = db
+
+    def get(self):
+        cu = self.db.cursor()
+        ret = {word: proficiency
+               for word, proficiency in cu.execute("SELECT proficiency, COUNT(word) FROM proficiency GROUP BY proficiency;")
+               }
+        cu.close()
+        self.write(ret)

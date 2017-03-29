@@ -24,7 +24,7 @@ class CoreLogic:
         MemoryStatus.WANTING: MemoryStatus.GOOD,
     }
 
-    def __init__(self, wordlist, config=None):
+    def __init__(self, wordlist, memory=None, config=None):
         self._wordlist = wordlist
         self._progress = OrderedDict(
             (word, MemoryStatus.UNKNOWN) for word in self.wordlist
@@ -32,6 +32,7 @@ class CoreLogic:
         self._updated = set()  # has been marked as GOOD today
 
         self._memory = dict((word, 0) for word in self.wordlist)
+        self._memory.update(memory)
 
         if config is None:
             config = Config()

@@ -14,6 +14,7 @@ import tornado.autoreload
 from tornado.platform.asyncio import AsyncIOMainLoop
 
 from wordapi import WordHandler
+from wordapi import CountingHandler
 from logic import CoreLogic
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -65,9 +66,8 @@ def get_argparser():
 
 def get_app(db):
     wordlist = get_words(db)
-
-    logic = CoreLogic(wordlist=wordlist)
-    logic.memory.update(get_proficiency(db))
+    memory = get_proficiency(db)
+    logic = CoreLogic(wordlist=wordlist, memory=memory)
 
     app_kwargs = {}
     # debug
@@ -78,7 +78,8 @@ def get_app(db):
             'default_filename': 'index.html'
         }),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': __static_path}),
-        (r'/api/words', WordHandler, {'logic': logic, 'db': db})
+        (r'/api/words', WordHandler, {'logic': logic, 'db': db}),
+        (r'/api/counting', CountingHandler, {'db': db}),
     ], **app_kwargs)
     return application
 
