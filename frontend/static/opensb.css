@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  background-color: #F9FAFC;
+}
+a {
+  text-decoration: none;
+}
+* {
+  box-sizing: border-box;
+}
+.opensb-header {
+  background-color: #EFF2F7;
+  line-height: 24px;
+  font-size: 24px;
+  padding: 10px 24px 10px 24px;
+  font-family: sans-serif;
+}
+.side-padding {
+  min-height: 24px;
+}
+.main-container {
+  background: white;
+  min-height: 400px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 20px;
+}
+.main-container .start-button {
+  margin: 0 auto;
+  display: block;
+}
+.sb-wordcard .word-title  {
+  font-size: 36px;
+  text-align: center;
+}
+.wordcard-query {
+  margin: 0 auto;
+  max-width: 600px;
+}
+.wordcard-query-line {
+  border-radius: 4px;
+  margin-top: 12px;
+  font-size: 16px;
+  border: 1px #E5E9F2 solid;
+  padding: 12px;
+  color: black;
+  width: 100%;
+}
+.el-button.wordcard-query-line {
+  margin-left: 0;
+}
+.wordcard-query-line.query-know:hover {
+  background-color: #13CE66;
+  color: white;
+}
+.wordcard-query-line.query-unknow:hover {
+  background-color: #FF4949;
+  color: white;
+}
+.wordcard-next-buttons {
+  margin: 0 auto;
+  max-width: 180px;
+}
+.wordcard-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 20px;
+  font-size: 20px;
+}
+.word-review-line {
+  border-radius: 4px;
+  margin: 0 0 12px 0;
+  padding: 8px;
+  font-size: 20px;
+  border: 1px #E5E9F2 solid;
+}
+.word-review-line .el-icon-check {
+  color: #13CE66;
+  font-size: 1rem;
+  width: 22px;
+}
+.word-review-line .el-icon-close {
+  color: #FF4949;
+  font-size: 1rem;
+  width: 22px;
+}
+.word-review-line span {
+  margin-left: 1rem;
+}
+.next-group-button {
+  display: block;
+  margin: 0 auto;
+}
+.sb-progress-bar {
+  height: 16px;
+  display: block;
+  background-color: #E5E9F2;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+.sb-progress-bar .progress-bar-component {
+  height: 16px;
+  float: left;
+}

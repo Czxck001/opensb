@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenSB</title>
+    <link rel="stylesheet" href="//cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css">
+    <link rel="stylesheet" href="/static/opensb.css">
+  </head>
+  <style>
+    [v-cloak] {
+      display: none !important;
+    }
+  </style>
+<body>
+  <div id="app" v-cloak>
+    <div class="opensb-header">OpenSB</div>
+    <el-row>
+      <el-col :span="2"><div class="side-padding"></div></el-col>
+      <el-col :span="20">
+        <div class="main-container">
+          <div v-if="state == 'welcome'">
+            <el-button @click="state='query'" type="primary" class="start-button" size="large">Start</el-button>
+          </div>
+          <h1 v-else-if="state == 'finish'">Finish </h1>
+          <div v-if="state == 'review'">
+            <p class="word-review-line"v-for="word in currentGroup">
+              <i v-if="word.know"class="el-icon-check"></i>
+              <i v-else class="el-icon-close"></i>
+              <span>{{word.word}}</span>
+            </p>
+            <el-button @click="onNextGroup" type="primary" class="next-group-button" size="large">下一组</el-button>
+          </div>
+          <sb-wordcard v-else-if="state == 'query'"
+            :word="currentWord.word"
+            :state="currentWord.state"
+            :detail="currentWord.detail"
+            :know="currentWord.know"
+            @choose="onChoose"
+            @cancel="onCancel"
+            @next="onNext"
+          >
+          </sb-wordcard>
+          <sb-progress-bar :components="progressComponents"></sb-progress-bar>
+        </div>
+      </el-col>
+      <el-col :span="2"><div class="side-padding"></div></el-col>
+    </el-row>
+  </div>
+</body>
+<script src="//cdn.bootcss.com/vue/2.2.4/vue.js"></script>
+<script src="//cdn.bootcss.com/vue-resource/1.2.1/vue-resource.min.js"></script>
+<script src="//cdn.bootcss.com/vue-router/2.3.0/vue-router.min.js"></script>
+<script src="//cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
+<script type="text/x-template" id="sb-wordcard-template">
+  <div class="sb-wordcard">
+    <div class="word-title">{{word}}</div>
+    <div v-if="state == 'query'" class="wordcard-query">
+      <!-- <el-button :plain="true" type="success" class="wordcard-query-line" @click="clickKnow(true)">1.认识</el-button>
+      <el-button :plain="true" type="danger" class="wordcard-query-line" @click="clickKnow(false)">2.不认识</el-button> -->
+      <a href="javascript:void(0)" @click="clickKnow(true)"><div class="wordcard-query-line query-know">1.认识</div></a>
+      <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
+    </div>
+    <div v-else class="wordcard-detail">
+      <div v-html="compiledMarkdownDetail"></div>
+      <div class="wordcard-next-buttons">
+        <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
+        <el-button type="danger" v-if="know" @click="clickCancel" size="large">撤销</el-button>
+      </div>
+    </div>
+  </div>
+</script>
+<script type="text/x-template" id="sb-progress-bar-template">
+  <div class="sb-progress-bar">
+    <div>
+      <div
+        v-for="component in components"
+        class="progress-bar-component"
+        v-bind:style="{backgroundColor: component.color, width: width(component) * 100 + '%'}"
+        >
+      </div>
+    </div>
+  </div>
+</script>
+<script>
+Vue.component('sb-progress-bar', {
+  template: '#sb-progress-bar-template',
+  props: {
+    components: Array
+  },
+  data: function() {
+    return {}
+  },
+  methods: {
+    width: function(component) {
+      var sum = 0;
+      for (var i = 0; i < this.components.length; i++) {
+        sum += this.components[i].value;
+      }
+      console.log('sum=', sum);
+      if (sum !== 0)
+        return component.value / sum;
+      return 0;
+    }
+  }
+
+});
+Vue.component('sb-wordcard', {
+  template: '#sb-wordcard-template',
+  props: {
+    word: String,
+    detail: String,
+    state: String,
+    know: Boolean
+  },
+  data: function() {
+    return {
+    }
+  },
+  methods: {
+    clickKnow: function(know) {
+      this.$emit("choose", know);
+    },
+    clickNext: function() {
+      this.$emit("next");
+    },
+    clickCancel: function() {
+      this.$emit("cancel");
+    }
+  },
+  computed: {
+    compiledMarkdownDetail: function() {
+      return marked(this.detail, { sanitize: true })
+    }
+  }
+});
+new Vue({
+  el: '#app',
+  data: {
+    currentWord: {
+      word: 'OpenSB',
+      detail: 'OpenSB',
+      state: 'query'
+    },
+    currentIndex: 0,
+    currentGroup: [],
+    state: 'welcome',
+    progress: {
+      bad: 0,
+      wanting: 0,
+      good:0,
+      unknown: 0,
+    }
+  },
+  mounted:function() {
+    this.loadFirstGroup();
+  },
+  methods: {
+    onChoose: function(know) {
+      this.currentGroup[this.currentIndex].know = know;
+      this.currentWord.state = 'detail';
+      this.currentWord.know = know;
+    },
+    onCancel: function() {
+      this.currentGroup[this.currentIndex].know = false;
+      this.onNext();
+    },
+    onNext: function() {
+      this.currentIndex += 1;
+      if (this.currentIndex == this.currentGroup.length) {
+        this.state = 'review'
+        return;
+      }
+      var index = this.currentIndex;
+      this.currentWord = {
+        word: this.currentGroup[index].word,
+        detail: this.currentGroup[index].text,
+        state: 'query'
+      };
+    },
+    onNextGroup: function() {
+      this.loadNextGroup();
+    },
+    loadWords: function(response) {
+      this.currentGroup = response.body.words;
+      this.progress = response.body.progress;
+      this.currentIndex = -1;
+      if (this.currentGroup.length > 0) {
+        this.state = 'query';
+        this.onNext();
+      } else {
+        this.state = 'finish';
+      }
+    },
+    loadNextGroup: function() {
+      var knowStatus = {};
+      for (var i = 0; i < this.currentGroup.length; i++) {
+        var word = this.currentGroup[i];
+        if (word.know !== undefined) {
+          knowStatus[word.word] = word.know;
+        }
+      }
+      this.$http.post('/api/words', {knowStatus: knowStatus}).then(this.loadWords).catch(function(response){
+        this.$message.error('Unable to load words!\n');
+        console.error(response.body);
+      })
+    },
+    loadFirstGroup: function() {
+      var $this = this;
+      this.$http.get('/api/words').then(this.loadWords).catch(function(response){
+        this.$message.error('Unable to load words!\n');
+        console.error(response.body);
+      })
+    }
+  },
+  computed: {
+    progressComponents: function() {
+      var keys = ['bad', 'wanting', 'good', 'unknown'];
+      var colorMap = {
+        bad: '#FF4949',
+        wanting: '#F7BA2A',
+        good: '#13CE66',
+        unknown: '#D3DCE6',
+      };
+      var components = []
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        components.push({
+          color: colorMap[key],
+          value: this.progress[key]
+        })
+      }
+      return components;
+    }
+  }
+});
+</script>
+</html>
