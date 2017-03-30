@@ -60,6 +60,8 @@ def get_proficiency(db):
 def get_argparser():
     parser = argparse.ArgumentParser(description='OpenSB')
     parser.add_argument('-i', '--import-dict', help='import dictionary')
+    parser.add_argument('-d', '--database', help='path to database',
+                        default='opensb.db')
 
     return parser
 
@@ -99,7 +101,7 @@ def main():
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
-    db = sqlite3.connect('opensb.db')
+    db = sqlite3.connect(args.database)
     prepare_db(db)
 
     if args.import_dict:
