@@ -156,6 +156,23 @@ new Vue({
   },
   mounted:function() {
     this.loadFirstGroup();
+    var vm = this;
+    var watched_keys = [49, 50, 68]; // 1, 2, d
+    window.addEventListener('keyup', function(event) {
+        if (watched_keys.indexOf(event.keyCode) >=0 ) {
+          switch (event.keyCode) {
+            case 49:
+              vm.onChoose();
+              break;
+            case 50:
+              vm.onChoose();
+              break;
+            case 68:
+              vm.onNext();
+              break;
+          }
+        }
+    });
   },
   methods: {
     onChoose: function(know) {
