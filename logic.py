@@ -15,6 +15,7 @@ class Config:
     max_bad = 14
     group_size = 7
     day_cap = 100
+    day_new = 50
     max_mem = 3
 
 
@@ -37,15 +38,22 @@ class CoreLogic:
             config = Config()
         self.config = config
 
+        # make daily task
         from random import shuffle
+        old_words = [word for word, prof in self.memory.items()
+                     if 0 < prof < self.config.max_mem]
         new_words = [word for word, prof in self.memory.items()
-                     if prof < self.config.max_mem]
+                     if 0 == prof]
+        shuffle(old_words)
         shuffle(new_words)
 
-        # make daily task
+        day_new_words = new_words[:self.config.day_new]
+        day_old_words = old_words[:(self.config.day_cap-len(day_new_words))]
+        day_words = day_new_words + day_old_words
+        shuffle(day_words)
+
         self._progress = OrderedDict(
-            (word, MemoryStatus.UNKNOWN)
-            for word in new_words[:self.config.day_cap]
+            (word, MemoryStatus.UNKNOWN) for word in day_words
         )
 
     @property
@@ -103,11 +111,14 @@ class CoreLogic:
         # if there is too many bad words, focus on the bad words
         elif pc['bad'] > self.config.max_bad or \
                 pc['wanting'] == pc['unknown'] == 0:
-            words = (word for word, status in self.progress.items()
-                     if status == MemoryStatus.BAD)
+            words = [word for word, status in self.progress.items()
+                     if status == MemoryStatus.BAD]
         else:
-            words = (word for word, status in self.progress.items()
-                     if status in {MemoryStatus.UNKNOWN, MemoryStatus.WANTING})
+            words = [word for word, status in self.progress.items()
+                     if status in {MemoryStatus.UNKNOWN, MemoryStatus.WANTING}]
+
+        from random import shuffle
+        shuffle(words)
 
         group = []
         for k, word in enumerate(words):
