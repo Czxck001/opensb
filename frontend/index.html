@@ -167,8 +167,10 @@ new Vue({
               }
               break;
             case 50:
-              if (vm.state == 'query') {
+              if (vm.state == 'query' && vm.currentWord.state == 'query') {
                 vm.onChoose(false);
+              } else if (vm.state == 'query' && vm.currentWord.state == 'detail') {
+                vm.onCancel();
               }
               break;
             case 68:
