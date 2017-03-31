@@ -162,13 +162,21 @@ new Vue({
         if (watched_keys.indexOf(event.keyCode) >=0 ) {
           switch (event.keyCode) {
             case 49:
-              vm.onChoose();
+              if (vm.state == 'query') {
+                vm.onChoose(true);
+              }
               break;
             case 50:
-              vm.onChoose();
+              if (vm.state == 'query') {
+                vm.onChoose(false);
+              }
               break;
             case 68:
-              vm.onNext();
+              if (vm.state == 'query') {
+                vm.onNext();
+              } else if (vm.state == 'review') {
+                vm.onNextGroup()
+              }
               break;
           }
         }
