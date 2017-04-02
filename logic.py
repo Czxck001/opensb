@@ -51,7 +51,11 @@ class CoreLogic:
         self._wordbook = wordbook
 
         self.config = config or CoreLogicConfig()
-        self._memory = memory or {}
+        memory = memory or {}
+
+        # only consider memory of words in wordbook
+        self._memory = {word: prof for word, prof in memory.items()
+                        if word in self._wordbook}
 
         # take new words in wordbook into memory if they aren't in there
         for word in self._wordbook:
