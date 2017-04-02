@@ -3,11 +3,11 @@ import json
 import tornado.web
 
 
-class WordHandler(tornado.web.RequestHandler):
+class WordGroupHandler(tornado.web.RequestHandler):
 
-    def initialize(self, logic, db):
+    def initialize(self, logic, mdb):
         self.logic = logic
-        self.db = db
+        self.mdb = mdb
 
     def get(self):
         words, progress = self.logic.next_group()
@@ -27,14 +27,7 @@ class WordHandler(tornado.web.RequestHandler):
 
         # save proficiency
         self.logic.update_memory()
-        cu = self.db.cursor()
-        cu.executemany(
-            "REPLACE INTO proficiency(word, proficiency) VALUES(?, ?)",
-            [(word, proficiency)
-             for word, proficiency in self.logic.memory.items()]
-        )
-        self.db.commit()
-        cu.close()
+        self.mdb.update(self.logic.memory)
 
         words, progress = self.logic.next_group()
         self.write({
@@ -43,16 +36,10 @@ class WordHandler(tornado.web.RequestHandler):
         })
 
 
-class CountingHandler(tornado.web.RequestHandler):
+class MemoryCountingHandler(tornado.web.RequestHandler):
 
-    def initialize(self, db):
-        self.db = db
+    def initialize(self, mdb):
+        self.mdb = mdb
 
     def get(self):
-        cu = self.db.cursor()
-        ret = {word: proficiency
-               for word, proficiency
-               in cu.execute("SELECT proficiency, COUNT(word) "
-                             "FROM proficiency GROUP BY proficiency;")}
-        cu.close()
-        self.write(ret)
+        self.write(self.mdb.count())
