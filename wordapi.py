@@ -30,7 +30,8 @@ class WordHandler(tornado.web.RequestHandler):
         cu = self.db.cursor()
         cu.executemany(
             "REPLACE INTO proficiency(word, proficiency) VALUES(?, ?)",
-            [(word, proficiency) for word, proficiency in self.logic.memory.items()]
+            [(word, proficiency)
+             for word, proficiency in self.logic.memory.items()]
         )
         self.db.commit()
         cu.close()
@@ -50,7 +51,8 @@ class CountingHandler(tornado.web.RequestHandler):
     def get(self):
         cu = self.db.cursor()
         ret = {word: proficiency
-               for word, proficiency in cu.execute("SELECT proficiency, COUNT(word) FROM proficiency GROUP BY proficiency;")
-               }
+               for word, proficiency
+               in cu.execute("SELECT proficiency, COUNT(word) "
+                             "FROM proficiency GROUP BY proficiency;")}
         cu.close()
         self.write(ret)

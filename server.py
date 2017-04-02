@@ -45,14 +45,18 @@ def prepare_db(db):
 
 def get_words(db):
     cu = db.cursor()
-    ret = {word: text for word, text in cu.execute("SELECT word, detail FROM `word` ORDER BY `id`")}
+    ret = {word: text
+           for word, text
+           in cu.execute("SELECT word, detail FROM `word` ORDER BY `id`")}
     cu.close()
     return ret
 
 
 def get_proficiency(db):
     cu = db.cursor()
-    ret = {word: proficiency for word, proficiency in cu.execute("SELECT word, proficiency FROM `proficiency`")}
+    ret = {word: proficiency
+           for word, proficiency
+           in cu.execute("SELECT word, proficiency FROM `proficiency`")}
     cu.close()
     return ret
 
@@ -79,7 +83,9 @@ def get_app(db):
             'path': __frontend_path,
             'default_filename': 'index.html'
         }),
-        (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': __static_path}),
+        (r'/static/(.*)', tornado.web.StaticFileHandler, {
+            'path': __static_path
+        }),
         (r'/api/words', WordHandler, {'logic': logic, 'db': db}),
         (r'/api/counting', CountingHandler, {'db': db}),
     ], **app_kwargs)
@@ -99,15 +105,20 @@ def main():
     parser = get_argparser()
     args = parser.parse_args()
 
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                        format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
+    logging.basicConfig(
+        stream=sys.stdout, level=logging.INFO,
+        format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s'
+    )
     db = sqlite3.connect(args.database)
     prepare_db(db)
 
     if args.import_dict:
         dictionary = json.load(open(args.import_dict, 'r'))
         cu = db.cursor()
-        cu.executemany("REPLACE INTO word(word, detail) VALUES (?, ?)", dictionary)
+        cu.executemany(
+            "REPLACE INTO word(word, detail) VALUES (?, ?)",
+            dictionary
+        )
         db.commit()
         cu.close()
 
