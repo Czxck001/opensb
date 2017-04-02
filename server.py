@@ -64,7 +64,7 @@ def main():
             'path': __static_path
         }),
         (r'/api/words', WordGroupHandler, {'logic': logic, 'mdb': mdb}),
-        (r'/api/counting', MemoryCountingHandler, {'mdb': mdb}),
+        (r'/api/counting', MemoryCountingHandler, {'logic': logic}),
     ], **app_kwargs)
     app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()

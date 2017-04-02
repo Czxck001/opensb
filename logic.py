@@ -110,6 +110,12 @@ class CoreLogic:
                 self._memory[word] += 1
                 self._progress_updated.add(word)
 
+    def count_memory(self):
+        ''' Count and stat the memory
+        '''
+        from collections import Counter
+        return dict(Counter(v for _, v in self._memory.items()))
+
     def i_know(self, word):
         assert self.progress[word] != ProgressStatus.GOOD
         self.progress[word] = self.know_trans[self.progress[word]]

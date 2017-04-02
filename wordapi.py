@@ -38,8 +38,8 @@ class WordGroupHandler(tornado.web.RequestHandler):
 
 class MemoryCountingHandler(tornado.web.RequestHandler):
 
-    def initialize(self, mdb):
-        self.mdb = mdb
+    def initialize(self, logic):
+        self.logic = logic
 
     def get(self):
-        self.write(self.mdb.count())
+        self.write(self.logic.count_memory())
