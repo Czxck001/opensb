@@ -70,6 +70,11 @@ a {
   margin-top: 20px;
   font-size: 20px;
 }
+.wordcard-detail blockquote {
+  border-left: solid 2px #8492A6;
+  margin: 0;
+  padding-left: 30px;
+}
 .word-review-line {
   border-radius: 4px;
   margin: 0 0 12px 0;
@@ -106,4 +111,11 @@ a {
 .sb-progress-bar .progress-bar-component {
   height: 16px;
   float: left;
+}
+.finish-today h1{
+  text-align: center;
+}
+.finish-today .el-button {
+  margin: 20px auto;
+  display: block;
 }

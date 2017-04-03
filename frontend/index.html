@@ -21,9 +21,12 @@
       <el-col :span="20">
         <div class="main-container">
           <div v-if="state == 'welcome'">
-            <el-button @click="state='query'" type="primary" class="start-button" size="large">Start</el-button>
+            <el-button @click="onStartTask" type="primary" class="start-button" size="large">开始背单词</el-button>
           </div>
-          <h1 v-else-if="state == 'finish'">Finish </h1>
+          <div v-else-if="state == 'finish'" class="finish-today">
+            <h1>Finish</h1>
+            <el-button type="primary" @click="onNewTask" size="large">再来一组</el-button>
+          </div>
           <div v-if="state == 'review'">
             <p class="word-review-line"v-for="word in currentGroup">
               <i v-if="word.know"class="el-icon-check"></i>
@@ -99,7 +102,6 @@ Vue.component('sb-progress-bar', {
       for (var i = 0; i < this.components.length; i++) {
         sum += this.components[i].value;
       }
-      console.log('sum=', sum);
       if (sum !== 0)
         return component.value / sum;
       return 0;
@@ -155,29 +157,30 @@ new Vue({
     }
   },
   mounted:function() {
-    this.loadFirstGroup();
     var vm = this;
     var watched_keys = [49, 50, 68]; // 1, 2, d
     window.addEventListener('keyup', function(event) {
         if (watched_keys.indexOf(event.keyCode) >=0 ) {
           switch (event.keyCode) {
-            case 49:
+            case 49: //1
               if (vm.state == 'query') {
                 vm.onChoose(true);
               }
               break;
-            case 50:
+            case 50: //2
               if (vm.state == 'query' && vm.currentWord.state == 'query') {
                 vm.onChoose(false);
               } else if (vm.state == 'query' && vm.currentWord.state == 'detail') {
                 vm.onCancel();
               }
               break;
-            case 68:
-              if (vm.state == 'query') {
+            case 68: //d
+              if (vm.state == 'query' && vm.currentWord.state == 'detail') {
                 vm.onNext();
               } else if (vm.state == 'review') {
-                vm.onNextGroup()
+                vm.onNextGroup();
+              } else if (vm.state == 'welcome') {
+                vm.onStartTask();
               }
               break;
           }
@@ -234,10 +237,22 @@ new Vue({
         console.error(response.body);
       })
     },
-    loadFirstGroup: function() {
+    loadFirstGroup: function() { // TODO: remove this function later
       var $this = this;
       this.$http.get('/api/words').then(this.loadWords).catch(function(response){
         this.$message.error('Unable to load words!\n');
+        console.error(response.body);
+      })
+    },
+    onStartTask: function() {
+      this.loadNextGroup();
+    },
+    onNewTask: function() {
+      var $this = this;
+      this.$http.post('/api/newtask').then(function() {
+        $this.state='welcome';
+      }).catch(function(response){
+        this.$message.error('Unable to get newtask!\n');
         console.error(response.body);
       })
     }

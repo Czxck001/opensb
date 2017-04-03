@@ -50,5 +50,5 @@ class NewTaskHandler(tornado.web.RequestHandler):
     def initialize(self, logic):
         self.logic = logic
 
-    def get(self):
+    def post(self):
         self.logic.make_task()
