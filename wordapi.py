@@ -43,3 +43,12 @@ class MemoryCountingHandler(tornado.web.RequestHandler):
 
     def get(self):
         self.write(self.logic.count_memory())
+
+
+class NewTaskHandler(tornado.web.RequestHandler):
+
+    def initialize(self, logic):
+        self.logic = logic
+
+    def get(self):
+        self.logic.make_task()
