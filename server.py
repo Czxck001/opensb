@@ -14,7 +14,7 @@ from tornado.platform.asyncio import AsyncIOMainLoop
 
 from database import MemoryDatabase
 from logic import CoreLogic, CoreLogicConfig
-from wordapi import WordGroupHandler, MemoryCountingHandler
+from wordapi import WordGroupHandler, MemoryCountingHandler, NewTaskHandler
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -65,6 +65,7 @@ def main():
         }),
         (r'/api/words', WordGroupHandler, {'logic': logic, 'mdb': mdb}),
         (r'/api/counting', MemoryCountingHandler, {'logic': logic}),
+        (r'/api/newtask', NewTaskHandler, {'logic': logic})
     ], **app_kwargs)
     app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()

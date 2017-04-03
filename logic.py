@@ -62,7 +62,10 @@ class CoreLogic:
             if word not in self._memory:
                 self._memory[word] = 0
 
-        # make daily task
+        # make the first task
+        self.make_task()
+
+    def make_task(self):
         from random import shuffle
         old_words = [word for word, prof in self._memory.items()
                      if 0 < prof < self.config.max_mem]
