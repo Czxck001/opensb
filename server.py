@@ -12,9 +12,11 @@ import tornado.autoreload
 
 from tornado.platform.asyncio import AsyncIOMainLoop
 
-from database import MemoryDatabase
-from logic import CoreLogic, CoreLogicConfig
-from wordapi import WordGroupHandler, MemoryCountingHandler, NewTaskHandler
+from backend.database import MemoryDatabase
+from backend.logic import CoreLogic, CoreLogicConfig
+from backend.wordapi import (
+    WordGroupHandler, MemoryCountingHandler, NewTaskHandler
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
