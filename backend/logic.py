@@ -15,7 +15,7 @@ When the task is ongoing by the user, progress is made. The progress is
 depicted by assigning a ProgressStatus for each word. When a word is either
 recognized or not recognized by the user, its ProgressStatus will transfer.
 
-Group:
+Group
 Words is taken by user in groups. Each group consists several words. After
 each group's recognition, the user will get a chance to review the words. At
 the same time, the core logic should update the progress of task into the
@@ -34,9 +34,9 @@ class ProgressStatus:
 class CoreLogicConfig:
     max_bad = 14
     group_size = 7
-    day_cap = 100
-    day_new = 50
-    max_mem = 3
+    task_size = 100
+    num_new_word = 50
+    max_prof = 3
 
 
 class CoreLogic:
@@ -68,19 +68,19 @@ class CoreLogic:
     def make_task(self):
         from random import shuffle
         old_words = [word for word, prof in self._memory.items()
-                     if 0 < prof < self.config.max_mem]
+                     if 0 < prof < self.config.max_prof]
         new_words = [word for word, prof in self._memory.items()
                      if 0 == prof]
         shuffle(old_words)
         shuffle(new_words)
 
-        day_new_words = new_words[:self.config.day_new]
-        day_old_words = old_words[:(self.config.day_cap-len(day_new_words))]
-        day_words = day_new_words + day_old_words
-        shuffle(day_words)
+        new_words = new_words[:self.config.num_new_word]
+        old_words = old_words[:(self.config.task_size-len(new_words))]
+        task_words = new_words + new_words
+        shuffle(task_words)
 
         self._progress = OrderedDict(
-            (word, ProgressStatus.UNKNOWN) for word in day_words
+            (word, ProgressStatus.UNKNOWN) for word in task_words
         )
         self._progress_updated = set()  # has been marked as GOOD today
 
