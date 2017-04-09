@@ -73,7 +73,7 @@ def arpabet_to_kk(apb):
     elif stress == 1:
         return '**{}**'.format(kk)
     else:  # stress == 2
-        return '*{}*'.format(kk)
+        return kk
 
 
 def read_dict(dict_path):
@@ -95,7 +95,7 @@ class CMUDict:
 
     def __getitem__(self, word):
         if word.upper() in self._phoneme_dict:
-            return self._phoneme_dict[word.upper()]
+            return '/{}/'.format(self._phoneme_dict[word.upper()])
         else:
             raise KeyError(word)
 
