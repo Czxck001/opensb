@@ -39,6 +39,7 @@
             :word="currentWord.word"
             :state="currentWord.state"
             :detail="currentWord.detail"
+            :soundmark="currentWord.soundmark"
             :know="currentWord.know"
             @choose="onChoose"
             @cancel="onCancel"
@@ -67,6 +68,7 @@
       <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
     </div>
     <div v-else class="wordcard-detail">
+      <div v-html="compiledMarkdownKK" class="wordcard-soundmark"></div>
       <div v-html="compiledMarkdownDetail"></div>
       <div class="wordcard-next-buttons">
         <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
@@ -114,6 +116,7 @@ Vue.component('sb-wordcard', {
   props: {
     word: String,
     detail: String,
+    soundmark: String,
     state: String,
     know: Boolean
   },
@@ -135,6 +138,9 @@ Vue.component('sb-wordcard', {
   computed: {
     compiledMarkdownDetail: function() {
       return marked(this.detail, { sanitize: true })
+    },
+    compiledMarkdownKK: function() {
+      return marked(this.soundmark, { sanitize: true })
     }
   }
 });
@@ -207,6 +213,7 @@ new Vue({
       this.currentWord = {
         word: this.currentGroup[index].word,
         detail: this.currentGroup[index].text,
+        soundmark: this.currentGroup[index].kk,
         state: 'query'
       };
     },

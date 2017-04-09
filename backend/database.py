@@ -1,3 +1,4 @@
+# encoding: utf-8
 class MemoryDatabase:
     def __init__(self, db_path):
         import sqlite3

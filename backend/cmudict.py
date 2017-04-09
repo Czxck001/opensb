@@ -1,3 +1,4 @@
+# encoding: utf-8
 '''
 CMUDict: a phonetic library of English
 http://www.speech.cs.cmu.edu/cgi-bin/cmudict

@@ -75,6 +75,9 @@ a {
   margin: 0;
   padding-left: 30px;
 }
+.wordcard-soundmark {
+  text-align: center;
+}
 .word-review-line {
   border-radius: 4px;
   margin: 0 0 12px 0;
