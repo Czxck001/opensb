@@ -61,6 +61,7 @@
 <script type="text/x-template" id="sb-wordcard-template">
   <div class="sb-wordcard">
     <div class="word-title">{{word}}</div>
+    <div v-html="compiledMarkdownPhonetic" class="wordcard-phonetic"></div>
     <div v-if="state == 'query'" class="wordcard-query">
       <!-- <el-button :plain="true" type="success" class="wordcard-query-line" @click="clickKnow(true)">1.认识</el-button>
       <el-button :plain="true" type="danger" class="wordcard-query-line" @click="clickKnow(false)">2.不认识</el-button> -->
@@ -68,7 +69,6 @@
       <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
     </div>
     <div v-else class="wordcard-detail">
-      <div v-html="compiledMarkdownKK" class="wordcard-phonetic"></div>
       <div v-html="compiledMarkdownDetail"></div>
       <div class="wordcard-next-buttons">
         <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
@@ -139,7 +139,7 @@ Vue.component('sb-wordcard', {
     compiledMarkdownDetail: function() {
       return marked(this.detail, { sanitize: true })
     },
-    compiledMarkdownKK: function() {
+    compiledMarkdownPhonetic: function() {
       return marked(this.phonetic, { sanitize: true })
     }
   }
