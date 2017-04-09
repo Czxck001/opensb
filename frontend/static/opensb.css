@@ -77,6 +77,13 @@ a {
 }
 .wordcard-phonetic {
   text-align: center;
+  color: #8492A6;
+  font-size: 28px;
+  margin: 0;
+  font-family: "lucida sans unicode",arial,sans-serif;
+}
+.wordcard-phonetic p {
+  margin: 10px auto;
 }
 .word-review-line {
   border-radius: 4px;
