@@ -13,6 +13,7 @@ import tornado.autoreload
 from tornado.platform.asyncio import AsyncIOMainLoop
 
 from backend.database import MemoryDatabase
+from backend.cmudict import CMUDict
 from backend.logic import CoreLogic, CoreLogicConfig
 from backend.wordapi import (
     WordGroupHandler, MemoryCountingHandler, NewTaskHandler
@@ -28,6 +29,8 @@ def main():
     parser = argparse.ArgumentParser(description='OpenSB')
     parser.add_argument('-wb', '--wordbook',
                         help='Wordbook JSON')
+    parser.add_argument('-cmu', '--cmudict', default='cmudict-0.7b',
+                        help='CMUDict')
     parser.add_argument('-db', '--database', default='memory.db',
                         help='Database (of the memory)')
     parser.add_argument('-o', '--override', nargs='*', default=[],
@@ -46,7 +49,10 @@ def main():
             setattr(config, key, type(getattr(config, key))(value))
 
     mdb = MemoryDatabase(FLAGS.database)
-    logic = CoreLogic(wordbook=wordbook, memory=mdb.get_all(), config=config)
+    logic = CoreLogic(wordbook=wordbook,
+                      cmudict=CMUDict(FLAGS.cmudict),
+                      memory=mdb.get_all(),
+                      config=config)
 
     logging.basicConfig(
         stream=sys.stdout, level=logging.INFO,
