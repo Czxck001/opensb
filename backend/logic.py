@@ -74,9 +74,9 @@ class CoreLogic:
         shuffle(old_words)
         shuffle(new_words)
 
-        new_words = new_words[:self.config.num_new_word]
-        old_words = old_words[:(self.config.task_size-len(new_words))]
-        task_words = new_words + new_words
+        new_words = new_words[:self._config.num_new_word]
+        old_words = old_words[:(self._config.task_size-len(new_words))]
+        task_words = new_words + old_words
         shuffle(task_words)
 
         self._progress = OrderedDict(
