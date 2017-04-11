@@ -39,6 +39,7 @@
             :word="currentWord.word"
             :state="currentWord.state"
             :detail="currentWord.detail"
+            :phonetic="currentWord.phonetic"
             :know="currentWord.know"
             @choose="onChoose"
             @cancel="onCancel"
@@ -60,6 +61,7 @@
 <script type="text/x-template" id="sb-wordcard-template">
   <div class="sb-wordcard">
     <div class="word-title">{{word}}</div>
+    <div v-html="compiledMarkdownPhonetic" class="wordcard-phonetic"></div>
     <div v-if="state == 'query'" class="wordcard-query">
       <!-- <el-button :plain="true" type="success" class="wordcard-query-line" @click="clickKnow(true)">1.认识</el-button>
       <el-button :plain="true" type="danger" class="wordcard-query-line" @click="clickKnow(false)">2.不认识</el-button> -->
@@ -114,6 +116,7 @@ Vue.component('sb-wordcard', {
   props: {
     word: String,
     detail: String,
+    phonetic: String,
     state: String,
     know: Boolean
   },
@@ -135,6 +138,9 @@ Vue.component('sb-wordcard', {
   computed: {
     compiledMarkdownDetail: function() {
       return marked(this.detail, { sanitize: true })
+    },
+    compiledMarkdownPhonetic: function() {
+      return marked(this.phonetic, { sanitize: true })
     }
   }
 });
@@ -207,6 +213,7 @@ new Vue({
       this.currentWord = {
         word: this.currentGroup[index].word,
         detail: this.currentGroup[index].text,
+        phonetic: this.currentGroup[index].kk,
         state: 'query'
       };
     },

@@ -47,10 +47,14 @@ class CoreLogic:
         ProgressStatus.WANTING: ProgressStatus.GOOD,
     }
 
-    def __init__(self, wordbook, memory=None, config=None):
+    def __init__(self,
+                 wordbook,
+                 cmudict=None,
+                 memory=None,
+                 config=None):
         self._wordbook = wordbook
-
-        self.config = config or CoreLogicConfig()
+        self._cmudict = cmudict or {}
+        self._config = config or CoreLogicConfig()
         memory = memory or {}
 
         # only consider memory of words in wordbook
@@ -68,7 +72,7 @@ class CoreLogic:
     def make_task(self):
         from random import shuffle
         old_words = [word for word, prof in self._memory.items()
-                     if 0 < prof < self.config.max_prof]
+                     if 0 < prof < self._config.max_prof]
         new_words = [word for word, prof in self._memory.items()
                      if 0 == prof]
         shuffle(old_words)
@@ -146,7 +150,7 @@ class CoreLogic:
             return [], pc
 
         # if there is too many bad words, focus on the bad words
-        elif pc['bad'] > self.config.max_bad \
+        elif pc['bad'] > self._config.max_bad \
                 or pc['wanting'] == pc['unknown'] == 0:
             words = [word for word, status in self.progress.items()
                      if status == ProgressStatus.BAD]
@@ -160,7 +164,10 @@ class CoreLogic:
 
         group = []
         for k, word in enumerate(words):
-            if k == self.config.group_size:
+            if k == self._config.group_size:
                 break
-            group.append({'word': word, 'text': self.wordbook[word]})
+            kk = self._cmudict[word] if word in self._cmudict else ''
+            group.append({'word': word,
+                          'text': self.wordbook[word],
+                          'kk': kk})  # Kenyon & Knott phonetic
         return group, pc
