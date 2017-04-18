@@ -53,3 +53,16 @@ class NewTaskHandler(tornado.web.RequestHandler):
     def post(self):
         post_data = json.loads(self.request.body.decode('utf-8'))
         self.logic.make_task(**post_data)
+
+
+class ConfigHandler(tornado.web.RequestHandler):
+
+    def initialize(self, logic):
+        self.logic = logic
+
+    def get(self):
+        self.write({
+            attr: getattr(self.logic.config, attr)
+            for attr in dir(self.logic.config)
+            if not attr.startswith('__')
+        })

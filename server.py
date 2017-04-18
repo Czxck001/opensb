@@ -16,7 +16,7 @@ from backend.database import MemoryDatabase
 from backend.cmudict import CMUDict
 from backend.logic import CoreLogic, CoreLogicConfig
 from backend.wordapi import (
-    WordGroupHandler, MemoryCountingHandler, NewTaskHandler
+    WordGroupHandler, MemoryCountingHandler, NewTaskHandler, ConfigHandler
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -73,7 +73,8 @@ def main():
         }),
         (r'/api/words', WordGroupHandler, {'logic': logic, 'mdb': mdb}),
         (r'/api/counting', MemoryCountingHandler, {'logic': logic}),
-        (r'/api/newtask', NewTaskHandler, {'logic': logic})
+        (r'/api/newtask', NewTaskHandler, {'logic': logic}),
+        (r'/api/config', ConfigHandler, {'logic': logic}),
     ], **app_kwargs)
     app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()
