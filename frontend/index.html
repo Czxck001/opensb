@@ -21,6 +21,38 @@
       <el-col :span="20">
         <div class="main-container">
           <div v-if="state == 'welcome'">
+            <div v-show="showConfig">
+              <div>
+                <span>熟练次数</span>
+                <el-slider
+                 v-model="taskConfig.max_prof"
+                 :step="1"
+                 :max="10"
+                 show-stops
+                 show-input>
+                </el-slider>
+              </div>
+              <div>
+                <span>本次数量</span>
+                <el-slider
+                 v-model="taskConfig.task_size"
+                 :step="50"
+                 :max="200"
+                 show-stops
+                 show-input>
+                </el-slider>
+              </div>
+              <div>
+                <span>新词数量</span>
+                <el-slider
+                 v-model="taskConfig.num_new_word"
+                 :step="10"
+                 :max="taskConfig.task_size"
+                 show-stops
+                 show-input>
+                </el-slider>
+              </div>
+            </div>
             <el-button @click="onStartTask" type="primary" class="start-button" size="large">开始背单词</el-button>
           </div>
           <div v-else-if="state == 'finish'" class="finish-today">
@@ -160,7 +192,13 @@ new Vue({
       wanting: 0,
       good:0,
       unknown: 0,
-    }
+    },
+    taskConfig: {
+      max_prof: 3,
+      num_new_word: 50,
+      task_size: 100
+    },
+    showConfig: false
   },
   mounted:function() {
     var vm = this;
@@ -192,6 +230,16 @@ new Vue({
           }
         }
     });
+    this.$http.get('/api/status').then(function(response) {
+      var progress = response.body.progress;
+      this.taskConfig = response.body.config;
+      if (progress.bad + progress.unknown + progress.wanting === 0) {
+        this.showConfig = true;
+      }
+    }).catch(function(response){
+      this.$message.error('Unable to load status!\n');
+      console.error(response.body);
+    })
   },
   methods: {
     onChoose: function(know) {
@@ -252,16 +300,22 @@ new Vue({
       })
     },
     onStartTask: function() {
-      this.loadNextGroup();
+      if (this.showConfig) {
+        var $this = this;
+        this.$http.post('/api/newtask', this.taskConfig).then(function() {
+          this.loadNextGroup();
+        }).catch(function(response){
+          this.$message.error('Unable to get task!\n');
+          console.error(response.body);
+        })
+      } else {
+        this.loadNextGroup();
+      }
+
     },
     onNewTask: function() {
-      var $this = this;
-      this.$http.post('/api/newtask').then(function() {
-        $this.state='welcome';
-      }).catch(function(response){
-        this.$message.error('Unable to get newtask!\n');
-        console.error(response.body);
-      })
+      this.showConfig = true;
+      this.state = 'welcome';
     }
   },
   computed: {

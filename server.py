@@ -27,7 +27,7 @@ __static_path = os.path.join(__frontend_path, 'static')
 
 def main():
     parser = argparse.ArgumentParser(description='OpenSB')
-    parser.add_argument('-wb', '--wordbook',
+    parser.add_argument('-wb', '--wordbook', required='true',
                         help='Wordbook JSON')
     parser.add_argument('-cmu', '--cmudict', default='cmudict-0.7b',
                         help='CMUDict')
