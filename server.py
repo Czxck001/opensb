@@ -16,7 +16,7 @@ from backend.database import MemoryDatabase
 from backend.cmudict import CMUDict
 from backend.logic import CoreLogic, CoreLogicConfig
 from backend.wordapi import (
-    WordGroupHandler, MemoryCountingHandler, NewTaskHandler
+    WordGroupHandler, MemoryCountingHandler, NewTaskHandler, StatusHandler
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +27,7 @@ __static_path = os.path.join(__frontend_path, 'static')
 
 def main():
     parser = argparse.ArgumentParser(description='OpenSB')
-    parser.add_argument('-wb', '--wordbook',
+    parser.add_argument('-wb', '--wordbook', required='true',
                         help='Wordbook JSON')
     parser.add_argument('-cmu', '--cmudict', default='cmudict-0.7b',
                         help='CMUDict')
@@ -73,7 +73,8 @@ def main():
         }),
         (r'/api/words', WordGroupHandler, {'logic': logic, 'mdb': mdb}),
         (r'/api/counting', MemoryCountingHandler, {'logic': logic}),
-        (r'/api/newtask', NewTaskHandler, {'logic': logic})
+        (r'/api/newtask', NewTaskHandler, {'logic': logic}),
+        (r'/api/status', StatusHandler, {'logic': logic}),
     ], **app_kwargs)
     app.listen(8081, address="0.0.0.0")
     loop = asyncio.get_event_loop()

@@ -51,4 +51,25 @@ class NewTaskHandler(tornado.web.RequestHandler):
         self.logic = logic
 
     def post(self):
-        self.logic.make_task()
+        post_data = json.loads(self.request.body.decode('utf-8'))
+        self.logic.make_task(
+            max_prof=post_data['max_prof'],
+            num_new_word=post_data['num_new_word'],
+            task_size=post_data['task_size']
+        )
+
+
+class StatusHandler(tornado.web.RequestHandler):
+
+    def initialize(self, logic):
+        self.logic = logic
+
+    def get(self):
+        self.write({
+            'progress': self.logic.count_progress(),
+            'config': {
+                attr: getattr(self.logic.config, attr)
+                for attr in dir(self.logic.config)
+                if not attr.startswith('__')
+            }
+        })
