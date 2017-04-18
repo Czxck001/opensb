@@ -8,6 +8,9 @@ a {
 * {
   box-sizing: border-box;
 }
+.config-panel {
+  margin-bottom: 20px;
+}
 .opensb-header {
   background-color: #EFF2F7;
   line-height: 24px;
