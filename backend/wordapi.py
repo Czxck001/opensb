@@ -51,4 +51,5 @@ class NewTaskHandler(tornado.web.RequestHandler):
         self.logic = logic
 
     def post(self):
-        self.logic.make_task()
+        post_data = json.loads(self.request.body.decode('utf-8'))
+        self.logic.make_task(**post_data)

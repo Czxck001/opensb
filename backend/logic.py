@@ -69,17 +69,25 @@ class CoreLogic:
         # make the first task
         self.make_task()
 
-    def make_task(self):
+    def make_task(self,
+                  max_prof=None,
+                  num_new_word=None,
+                  task_size=None):
+        # if not specified, use default value in _config
+        max_prof = max_prof or self._config.max_prof
+        num_new_word = num_new_word or self._config.num_new_word
+        task_size = task_size or self._config.task_size
+
         from random import shuffle
         old_words = [word for word, prof in self._memory.items()
-                     if 0 < prof < self._config.max_prof]
+                     if 0 < prof < max_prof]
         new_words = [word for word, prof in self._memory.items()
                      if 0 == prof]
         shuffle(old_words)
         shuffle(new_words)
 
-        new_words = new_words[:self._config.num_new_word]
-        old_words = old_words[:(self._config.task_size-len(new_words))]
+        new_words = new_words[:num_new_word]
+        old_words = old_words[:(task_size-len(new_words))]
         task_words = new_words + old_words
         shuffle(task_words)
 
@@ -107,6 +115,10 @@ class CoreLogic:
             status in ProgressStatus
         '''
         return self._progress
+
+    @property
+    def config(self):
+        return self._config
 
     def update_memory(self):
         ''' Update the memory according to current progress of task
