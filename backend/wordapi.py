@@ -55,14 +55,17 @@ class NewTaskHandler(tornado.web.RequestHandler):
         self.logic.make_task(**post_data)
 
 
-class ConfigHandler(tornado.web.RequestHandler):
+class StatusHandler(tornado.web.RequestHandler):
 
     def initialize(self, logic):
         self.logic = logic
 
     def get(self):
         self.write({
-            attr: getattr(self.logic.config, attr)
-            for attr in dir(self.logic.config)
-            if not attr.startswith('__')
+            'progress': self.count_progress(),
+            'config': {
+                attr: getattr(self.logic.config, attr)
+                for attr in dir(self.logic.config)
+                if not attr.startswith('__')
+            }
         })
