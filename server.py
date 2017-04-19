@@ -51,7 +51,7 @@ def main():
     mdb = MemoryDatabase(FLAGS.database)
     logic = CoreLogic(wordbook=wordbook,
                       cmudict=CMUDict(FLAGS.cmudict),
-                      memory=mdb.get_all(),
+                      mdb=mdb,
                       config=config)
 
     logging.basicConfig(
@@ -71,7 +71,7 @@ def main():
         (r'/static/(.*)', tornado.web.StaticFileHandler, {
             'path': __static_path
         }),
-        (r'/api/words', WordGroupHandler, {'logic': logic, 'mdb': mdb}),
+        (r'/api/words', WordGroupHandler, {'logic': logic}),
         (r'/api/counting', MemoryCountingHandler, {'logic': logic}),
         (r'/api/newtask', NewTaskHandler, {'logic': logic}),
         (r'/api/status', StatusHandler, {'logic': logic}),
