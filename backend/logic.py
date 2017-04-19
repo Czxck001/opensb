@@ -22,6 +22,7 @@ the same time, the core logic should update the progress of task into the
 memory.
 '''
 from collections import OrderedDict
+from time import time
 
 
 class ProgressStatus:
@@ -49,14 +50,16 @@ class CoreLogic:
 
     def __init__(self,
                  wordbook,
+                 mdb,
                  cmudict=None,
-                 memory=None,
                  config=None):
+
         self._wordbook = wordbook
+        self._mdb = mdb
         self._cmudict = cmudict or {}
         self._config = config or CoreLogicConfig()
-        memory = memory or {}
 
+        memory = self._mdb.get_memory()
         # only consider memory of words in wordbook
         self._memory = {word: prof for word, prof in memory.items()
                         if word in self._wordbook}
@@ -121,8 +124,10 @@ class CoreLogic:
     def config(self):
         return self._config
 
-    def update_memory(self):
-        ''' Update the memory according to current progress of task
+    def _update_memory(self):
+        ''' Update the memory according to current progress of task, and then
+            sync with mdb
+            progress -> memory -> mdb
         '''
         for word, status in self.progress.items():
             if status == ProgressStatus.GOOD \
@@ -130,18 +135,22 @@ class CoreLogic:
                 self._memory[word] += 1
                 self._progress_updated.add(word)
 
+        self._mdb.update_memory(self._memory)
+
+    def _i_know(self, word):
+        assert self.progress[word] != ProgressStatus.GOOD
+        self.progress[word] = self.know_trans[self.progress[word]]
+        self._mdb.log_word(word, True)
+
+    def _i_dont_know(self, word):
+        self.progress[word] = ProgressStatus.BAD
+        self._mdb.log_word(word, False)
+
     def count_memory(self):
         ''' Count and stat the memory
         '''
         from collections import Counter
         return dict(Counter(v for _, v in self._memory.items()))
-
-    def i_know(self, word):
-        assert self.progress[word] != ProgressStatus.GOOD
-        self.progress[word] = self.know_trans[self.progress[word]]
-
-    def i_dont_know(self, word):
-        self.progress[word] = ProgressStatus.BAD
 
     def count_progress(self):
         ''' Count the number of words in each status
@@ -154,6 +163,19 @@ class CoreLogic:
             'bad': counter[ProgressStatus.BAD],
             'wanting': counter[ProgressStatus.WANTING],
         }
+
+    def update_group(self, know_status):
+        ''' Get the know-status from the frontend, make action, then save the
+            status.
+        '''
+        for word, know in know_status.items():
+            if know:
+                self._i_know(word)
+            else:
+                self._i_dont_know(word)
+
+        # update memory
+        self._update_memory()
 
     def next_group(self):
         ''' return: [(word, test), (word, test), ... ]
