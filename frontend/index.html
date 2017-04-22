@@ -65,7 +65,7 @@
               <i v-else class="el-icon-close"></i>
               <span>{{word.word}}</span>
             </p>
-            <el-button @click="onNextGroup" type="primary" class="next-group-button" size="large">下一组</el-button>
+            <el-button @click="onNextGroup" type="primary" class="next-group-button" size="large" :disabled="loading">下一组</el-button>
           </div>
           <sb-wordcard v-else-if="state == 'query'"
             :word="currentWord.word"
@@ -198,7 +198,8 @@ new Vue({
       num_new_word: 50,
       task_size: 100
     },
-    showConfig: false
+    showConfig: false,
+    loading: false
   },
   mounted:function() {
     var vm = this;
@@ -287,7 +288,12 @@ new Vue({
           knowStatus[word.word] = word.know;
         }
       }
-      this.$http.post('/api/words', {knowStatus: knowStatus}).then(this.loadWords).catch(function(response){
+      this.loading = true;
+      this.$http.post('/api/words', {knowStatus: knowStatus}).then(function(response) {
+        this.loading=false;
+        this.loadWords(response);
+      }).catch(function(response){
+        this.loading=false;
         this.$message.error('Unable to load words!\n');
         console.error(response.body);
       })
