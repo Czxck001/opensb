@@ -22,7 +22,6 @@ the same time, the core logic should update the progress of task into the
 memory.
 '''
 from collections import OrderedDict
-from time import time
 
 
 class ProgressStatus:
@@ -33,7 +32,6 @@ class ProgressStatus:
 
 
 class CoreLogicConfig:
-    max_bad = 14
     group_size = 7
     task_size = 100
     num_new_word = 50
@@ -185,7 +183,7 @@ class CoreLogic:
             return [], pc
 
         # if there is too many bad words, focus on the bad words
-        elif pc['bad'] > self._config.max_bad \
+        elif pc['bad'] > self._config.group_size \
                 or pc['wanting'] == pc['unknown'] == 0:
             words = [word for word, status in self.progress.items()
                      if status == ProgressStatus.BAD]
