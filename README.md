@@ -25,7 +25,7 @@ OpenSB is able to show the pronounciation of words, by adopting [the CMU Pronoun
 ```bash
 ~/opensb $ wget http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b
 ```
-By default, OpenSB will check `cmudict-0.7b` path. If the CMUDict file exists, the pronounciation will be adopted. If the file is not there, the feature will be turned off.
+By default, OpenSB will check `cmudict-0.7b` path. If the CMUDict file exists, the pronounciation will be adopted. If the file is not there, the feature will be turned off automatically.
 
 Moreover, you can use `-cmu` flag to specify the path of the CMUDict file.
 
