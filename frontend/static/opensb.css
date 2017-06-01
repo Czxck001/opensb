@@ -89,11 +89,7 @@ a {
   margin: 10px auto;
 }
 .word-review-line {
-  border-radius: 4px;
-  margin: 0 0 12px 0;
-  padding: 8px;
-  font-size: 20px;
-  border: 1px #E5E9F2 solid;
+  margin: 6px 0;
 }
 .word-review-line .el-icon-check {
   color: #13CE66;
@@ -107,6 +103,9 @@ a {
 }
 .word-review-line span {
   margin-left: 1rem;
+}
+.word-review-line .wordcard-phonetic {
+  font-size: 20px;
 }
 .next-group-button {
   display: block;

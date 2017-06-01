@@ -60,11 +60,18 @@
             <el-button type="primary" @click="onNewTask" size="large">再来一组</el-button>
           </div>
           <div v-if="state == 'review'">
-            <p class="word-review-line"v-for="word in currentGroup">
-              <i v-if="word.know"class="el-icon-check"></i>
-              <i v-else class="el-icon-close"></i>
-              <span>{{word.word}}</span>
-            </p>
+            <el-collapse>
+              <el-collapse-item class="word-review-line" v-for="word in currentGroup">
+                <template slot="title">
+                  <i v-if="word.know"class="el-icon-check"></i>
+                  <i v-else class="el-icon-close"></i>
+                  <span>{{word.word}}</span>
+                </template>
+                <sb-marked :markdown="word.kk" class="wordcard-phonetic"></sb-marked>
+                <sb-marked :markdown="word.text"></sb-marked>
+
+              </el-collapse-item>
+            </el-collapse>
             <el-button @click="onNextGroup" type="primary" class="next-group-button" size="large" :disabled="loading">下一组</el-button>
           </div>
           <sb-wordcard v-else-if="state == 'query'"
@@ -93,7 +100,7 @@
 <script type="text/x-template" id="sb-wordcard-template">
   <div class="sb-wordcard">
     <div class="word-title">{{word}}</div>
-    <div v-html="compiledMarkdownPhonetic" class="wordcard-phonetic"></div>
+    <sb-marked :markdown="phonetic" class="wordcard-phonetic"></sb-marked>
     <div v-if="state == 'query'" class="wordcard-query">
       <!-- <el-button :plain="true" type="success" class="wordcard-query-line" @click="clickKnow(true)">1.认识</el-button>
       <el-button :plain="true" type="danger" class="wordcard-query-line" @click="clickKnow(false)">2.不认识</el-button> -->
@@ -101,7 +108,7 @@
       <a href="javascript:void(0)" @click="clickKnow(false)"><div class="wordcard-query-line query-unknow">2.不认识</div></a>
     </div>
     <div v-else class="wordcard-detail">
-      <div v-html="compiledMarkdownDetail"></div>
+      <sb-marked :markdown="detail"></sb-marked>
       <div class="wordcard-next-buttons">
         <el-button type="primary" @click="clickNext" size="large">下一个</el-button>
         <el-button type="danger" v-if="know" @click="clickCancel" size="large">撤销</el-button>
@@ -121,7 +128,23 @@
     </div>
   </div>
 </script>
+
+<script type="text/x-template" id="sb-marked-template">
+  <div v-html="makredHTML"></div>
+</script>
+
 <script>
+Vue.component('sb-marked', {
+  template: "#sb-marked-template",
+  props: {
+    markdown: String
+  },
+  computed: {
+    makredHTML: function() {
+      return marked(this.markdown, { sanitize: true })
+    }
+  }
+});
 Vue.component('sb-progress-bar', {
   template: '#sb-progress-bar-template',
   props: {
@@ -165,14 +188,6 @@ Vue.component('sb-wordcard', {
     },
     clickCancel: function() {
       this.$emit("cancel");
-    }
-  },
-  computed: {
-    compiledMarkdownDetail: function() {
-      return marked(this.detail, { sanitize: true })
-    },
-    compiledMarkdownPhonetic: function() {
-      return marked(this.phonetic, { sanitize: true })
     }
   }
 });
