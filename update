@@ -1,0 +1,9 @@
+#!/usr/bin/bash 
+cd ../wordlists 
+python3 -m script.opensb.magoosh 
+python3 -m script.opensb.gre_upgrade 
+python3 -m script.opensb.barron 
+mv magoosh.json ../opensb/magoosh.json 
+mv gre-upgrade.json ../opensb/gre-upgrade.json 
+mv barron.json ../opensb/barron.json 
+cd ../opensb
